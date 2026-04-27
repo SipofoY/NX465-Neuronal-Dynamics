@@ -28,8 +28,5 @@ __pycache__/
 # VS Code / editor
 .vscode/
 
-# Reference files from other students (not part of our submission)
-projet_aisha/
-
 # Stray downloaded PDFs
 a_1008925309027.pdf
