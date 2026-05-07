@@ -43,7 +43,6 @@ Grid cells, first discovered in the medial entorhinal cortex (MEC) of rodents by
 This mini-project models grid cell dynamics using a \textbf{Continuous Attractor Network (CAN)} based on the framework of Burak and Fiete (2009) \cite{burak2009}. The implementation proceeds in four stages: (0) building a 1D ring attractor where stable activity bumps emerge from a Mexican-hat connectivity kernel; (1) developing a 1D velocity integrator using two asymmetrically shifted populations (Left/Right); (2) generalizing the architecture to 2D with four cardinal populations (N, S, E, W), enabling the hexagonal grid to translate under arbitrary 2D velocity vectors; and (3) analyzing the impact of biologically realistic aperiodic boundaries and attenuation strategies.
 
 All simulations use \textbf{Forward Euler} integration ($\Delta t = 1$ ms) and a rectified linear unit (ReLU) transfer function $f(x) = \max(0, x)$. Recurrent synaptic inputs are computed efficiently via spatial convolutions using \texttt{scipy.ndimage.convolve1d} (1D) and \texttt{scipy.ndimage.convolve} (2D).
-```
 
 %=============================================================================
 \section{Exercise 0 --- Getting Started: 1D Ring Attractor}
@@ -178,9 +177,6 @@ The linear gain factor (the slope of the fit) translates the abstract velocity i
 \section{Exercise 2 --- Extending to 2D Grid Cells}
 %=============================================================================
 
-Voici le code LaTeX de ta section "4 Exercise 2 — Extending to 2D Grid Cells", corrigé et optimisé pour correspondre aux standards académiques et aux explications formelles du cours.
-
-```latex
 \subsection{2D Mexican-hat kernel}
 
 The connectivity kernel is generalized to 2D using the Euclidean norm $\|\mathbf{x}\|$:
@@ -260,7 +256,7 @@ The hexagonal lattice emerges via spontaneous pattern formation. The 2D Mexican-
 \end{figure}
 
 \textbf{Discussion.} The asymmetric modulation of the feedforward drive, combined with the anatomically shifted recurrent kernels, systematically biases the network's excitation. This forces the entire hexagonal lattice to translate rigidly, performing exact 2D path integration. The grid's spatial phase rigorously encodes the integrated position: $\boldsymbol{\phi}(t) = \boldsymbol{\phi}(0) + \kappa \int_0^t \mathbf{v}(t')\,dt'$. The intrinsic lattice parameters (spacing and orientation) remain strictly invariant, as they are determined exclusively by the symmetric Mexican-hat connectivity.
-```
+
 %=============================================================================
 \section{Exercise 3 --- Aperiodic Boundaries}
 %=============================================================================
@@ -398,7 +394,7 @@ Together, these results demonstrate that the continuous attractor framework offe
 %=============================================================================
 \section{Approach}
 %=============================================================================
-w
+
 The team (Arthur and Yann) divided the implementation responsibilities: one member led the development of the 1D continuous attractor network (Exercises 0--1), while the other generalized the architecture to the 2D grid cell model (Exercises 2--3). We conducted joint code reviews and debugging sessions after each major milestone.
 
 We wrote all Python code from scratch, relying exclusively on the mathematical formulations provided in the project description and standard libraries (\texttt{numpy}, \texttt{scipy.ndimage}, \texttt{matplotlib}). Large Language Models (LLMs) were used strictly as programming assistants to resolve minor Python syntax errors and as copy-editors to ensure grammatical accuracy and maintain an academic tone in this English report (using targeted prompts such as \emph{"Correct the English syntax and elevate the academic tone of this paragraph"}).
