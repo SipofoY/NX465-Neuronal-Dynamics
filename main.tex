@@ -1,4 +1,4 @@
-\documentclass[11pt, a4paper]{article}
+\documentclass[10pt, a4paper]{article}
 
 % --- Packages ---
 \usepackage[utf8]{inputenc}
@@ -8,14 +8,22 @@
 \usepackage{geometry}
 \usepackage{hyperref}
 \usepackage{float}
-\usepackage{caption}
+\usepackage[font=small, skip=4pt]{caption}
 \usepackage{subcaption}
 \usepackage{booktabs}
 \usepackage{xcolor}
 \usepackage{parskip}
 \usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{titling}
 
-\geometry{top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm}
+% --- Optimization ---
+\geometry{top=1.8cm, bottom=1.8cm, left=1.8cm, right=1.8cm}
+\titlespacing*{\section}{0pt}{1.2ex plus .5ex minus .2ex}{0.6ex plus .2ex}
+\titlespacing*{\subsection}{0pt}{1ex plus .2ex minus .2ex}{0.4ex plus .2ex}
+\setlength{\droptitle}{-1.5cm}
+\setlength{\parskip}{0.5em}
 
 \title{
     \textbf{Spatial Navigation using Grid Cells:}\\
@@ -98,7 +106,7 @@ Integrating Eq.~\eqref{eq:ring_dyn} over $T=500$ ms with uniformly distributed i
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{images2/fig_0_5_seeds.png}
+    \includegraphics[width=0.85\textwidth]{images2/fig_0_5_seeds.png}
     \caption{%
         Ring attractor dynamics under three distinct random initializations. The resulting activity bumps share identical macroscopic properties (amplitude and width, governed by the kernel parameters), but differ in their final spatial location.%
     }
@@ -148,7 +156,7 @@ When $v > 0$, the right-shifting population receives a stronger feedforward driv
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{images2/fig_1_3_varying.png}
+    \includegraphics[width=0.85\textwidth]{images2/fig_1_3_varying.png}
     \caption{%
         \textbf{Left:} Time-varying velocity signal $v(t)$ comprising 10 randomly sampled blocks (300\,ms each) from $[-2,-0.5]\cup[0.5,2]$. \textbf{Right:} Corresponding bump trajectory $r_{total}(x,t)$. The continuous attractor accurately tracks the input, moving rightward for $v > 0$ and leftward for $v < 0$, with a drift speed strictly proportional to $|v|$.%
     }
@@ -272,11 +280,22 @@ implemented via \texttt{mode='constant'} in \texttt{scipy.ndimage.convolve}.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.52\textwidth]{images2/fig_3_1_aperiodic.png}
-    \caption{%
-        Activity under aperiodic boundary conditions without correction. Severe boundary artefacts completely disrupt the hexagonal lattice. Peripheral neurons lack a symmetric inhibitory surround, leading to uncompensated excitation and activity accumulation at the network edges.%
-    }
-    \label{fig:aperiodic}
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images2/fig_3_1_aperiodic.png}
+        \caption{%
+            Activity under aperiodic boundary conditions without correction. Severe boundary artefacts completely disrupt the hexagonal lattice. Peripheral neurons lack a symmetric inhibitory surround, leading to uncompensated excitation and activity accumulation at the network edges.%
+        }
+        \label{fig:aperiodic}
+    \end{minipage}\hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images2/fig_3_2_envelope.png}
+        \caption{%
+            Radial masking envelope $e(\mathbf{x})$ evaluated on a $50\times 50$ lattice. The central region remains unattenuated ($e=1$); the envelope decays exponentially to 0 beyond a radius of $R_{fade}=5$ spatial units from the center.%
+        }
+        \label{fig:envelope}
+    \end{minipage}
 \end{figure}
 
 \textbf{Mechanism.} The truncation of the continuous attractor sheet structurally removes the long-range inhibitory surround for boundary neurons. This asymmetric loss fundamentally disrupts the center-surround competition mandated by the Mexican-hat kernel. Consequently, peripheral neurons receive a net recurrent excitatory current that permanently drives their activity above threshold, saturating the network edges and suppressing the interior grid pattern.
@@ -289,15 +308,6 @@ To mitigate these boundary artefacts, we define a radial attenuation envelope $e
     \label{eq:envelope}
 \end{equation}
 with parameters $\gamma = 0.08$, $f_{ratio} = 0.2$, $M = 50$, and an attenuation radius $R_{fade} = f_{ratio}\times M/2 = 5$.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.48\textwidth]{images2/fig_3_2_envelope.png}
-    \caption{%
-        Radial masking envelope $e(\mathbf{x})$ evaluated on a $50\times 50$ lattice. The central region remains unattenuated ($e=1$); the envelope decays exponentially to 0 beyond a radius of $R_{fade}=5$ spatial units from the center.%
-    }
-    \label{fig:envelope}
-\end{figure}
 
 \subsection{Ex 3.3 --- Weight attenuation}
 
@@ -362,7 +372,7 @@ The CAN model precisely predicts that: (i) the hexagonal grid pattern emerges sp
 
 \textbf{Proposed experiment.}
 
-\begin{enumerate}
+\begin{enumerate}[itemsep=0pt, parsep=0pt, topsep=4pt, partopsep=0pt]
     \item \textit{Preparation.} Chronically implant high-density extracellular probes (e.g., Neuropixels) in the medial entorhinal cortex (MEC, layer~II) of rats navigating a 1D linear track ($L=2$ m). Identify grid cells via their spatial periodicity (field spacing $\lambda$). Simultaneously record from head direction and speed-modulated cells (e.g., in the presubiculum) to extract a continuous ground-truth velocity signal $\mathbf{v}(t)$.
 
     \item \textit{Velocity-gain manipulation.} Employ a closed-loop virtual reality system to decouple physical locomotion from optic flow. Present a virtual optic flow scaled by a gain factor $\kappa$ relative to the physical treadmill speed ($\mathbf{v}_{virtual} = \kappa \mathbf{v}_{physical}$). Because the CAN model integrates the perceived velocity, it predicts the physical grid spacing will inversely scale by $1/\kappa$, reflecting an integration phase that accumulates at $\kappa v$ rather than $v$.
@@ -379,7 +389,7 @@ The CAN model precisely predicts that: (i) the hexagonal grid pattern emerges sp
 
 We have implemented and analyzed a hierarchical path-integration model, progressing from a 1D ring attractor to a comprehensive 2D continuous attractor network (CAN) that successfully recapitulates the spontaneous emergence and velocity-driven translation of hexagonal firing fields observed in MEC grid cells. The key findings are:
 
-\begin{itemize}
+\begin{itemize}[itemsep=0pt, parsep=0pt, topsep=4pt, partopsep=0pt]
     \item The 1D Mexican-hat connectivity profile drives spontaneous pattern formation, yielding a stable, spatially localized activity bump. Its exact position is determined by initial noise via spontaneous symmetry breaking, revealing the continuous manifold of marginally stable fixed points that defines a continuous attractor.
 
     \item A dual-population (Left/Right) architecture structurally converts a scalar velocity signal into a proportional drift of the activity bump. The measured drift speed scales strictly \textbf{linearly} with the input velocity (Fig.~\ref{fig:linear_v}), confirming mathematically exact 1D path integration.
