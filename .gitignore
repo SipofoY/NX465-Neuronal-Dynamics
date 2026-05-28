@@ -30,3 +30,6 @@ __pycache__/
 
 # Stray downloaded PDFs
 a_1008925309027.pdf
+
+.venv/
+images2/
