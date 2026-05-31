@@ -46,13 +46,7 @@
 %=============================================================================
 Grid cells, first discovered in the medial entorhinal cortex (MEC) of rodents by Hafting et al.\ (2005) \cite{hafting2005}, fire in a striking hexagonally periodic pattern as an animal navigates through its environment. Crucially, this spatial code persists even in complete darkness, demonstrating that grid cells do not merely report incoming sensory input, but actively integrate the animal's self-motion cues (velocity and head direction) into a continuously updated internal position estimate---a fundamental cognitive mechanism known as \textbf{path integration}.
 
-In this mini-project, we build a \textbf{Continuous Attractor Network (CAN)} model of grid cells, closely following the seminal framework established by Burak and Fiete (2009) \cite{burak2009}. Attractor networks are dynamical systems that constrain high-dimensional population activity into a \textbf{low-dimensional neural manifold} (e.g., a 1D ring or a 2D torus) of minimal-energy states, enabling the maintenance of stable representations over time. The project proceeds in four hierarchical stages: 
-(0) We implement a basic 1D ring attractor to investigate how stable, localized bumps of activity arise spontaneously from a center-surround (Mexican-hat) connectivity kernel. 
-(1) We extend this into a 1D velocity integrator utilizing two anatomically shifted populations (Left/Right) to convert a scalar velocity signal into a proportional phase drift. 
-(2) We generalize the architecture to a 2D neural sheet equipped with four cardinal populations (N, S, E, W), allowing the emergent hexagonal grid pattern to translate seamlessly under arbitrary 2D velocity vectors. 
-(3) We analyze the severe impact of biologically realistic aperiodic boundaries on the continuous attractor manifold and rigorously compare two attenuation strategies designed to mitigate boundary artifacts.
-
-All simulations use \textbf{Forward Euler} numerical integration with $\Delta t = 1$ ms and a rectified linear unit (ReLU) transfer function $f(x) = \max(0, x)$. Recurrent synaptic convolutions are computed efficiently using \texttt{scipy.ndimage.convolve1d} (1D) and \texttt{scipy.ndimage.convolve} (2D).
+In this mini-project, we build a \textbf{Continuous Attractor Network (CAN)} model of grid cells, closely following the seminal framework established by Burak and Fiete (2009) \cite{burak2009}. Attractor networks are dynamical systems that constrain high-dimensional population activity into a \textbf{low-dimensional neural manifold} (e.g., a 1D ring or a 2D torus) of minimal-energy states, enabling the maintenance of stable representations over time. All simulations use \textbf{Forward Euler} numerical integration with $\Delta t = 1$ ms and a rectified linear unit (ReLU) transfer function $f(x) = \max(0, x)$.
 
 
 %=============================================================================
@@ -93,7 +87,7 @@ Using $A_{exc}=0.3$, $\sigma_{exc}=5.0$, $A_{inh}=0.2$, $\sigma_{inh}=10.0$; int
     \end{minipage}
 \end{figure}
 
-\textbf{Biological interpretation.} The Mexican-hat profile captures local recurrent excitation (nearby pyramidal cells) flanked by broad lateral inhibition (interneurons projecting over greater distances).
+\textbf{Ex 0.3 - Biological interpretation.} The Mexican-hat profile captures local recurrent excitation (nearby pyramidal cells) flanked by broad lateral inhibition (interneurons projecting over greater distances).
 
 \subsection{Ex 0.5 --- Dependence on initialisation}
 
@@ -155,7 +149,7 @@ When $v>0$, the R population receives a stronger drive ($B_R>B_L$). The offset k
     \end{minipage}
 \end{figure}
 
-The spatial phase encodes $x(t)=x(0)+\kappa\int_0^t v\,dt'$; the linear gain $\kappa$ is set exclusively by $\alpha$, $l$, and the connectivity footprint.
+The bump moves at a speed proportional to $v(t)$, instantly reversing direction upon each velocity switch, while its shape remains stable. It wraps around the ring boundaries without disruption, confirming the periodic topology. The bump's cumulative displacement tracks the time-integral of velocity, demonstrating that the network performs path integration. The bump position is tracked via the phase of the first Fourier mode of the activity pattern. After phase unwrapping, the bump speed is obtained by finite differencing. Plotting measured speed against input velocity $v$ reveals a clear linear relationship (slope $\approx -70.4$ neurons/s), confirming that the network faithfully integrates the velocity input.
 
 %=============================================================================
 \section{Exercise 2 --- Extending to 2D Grid Cells}
@@ -180,7 +174,7 @@ with $I^{rec}(\mathbf{x},t)=\sum_{p\in\{N,S,E,W\}}\iint W_p(\mathbf{x}-\mathbf{x
 
 \begin{figure}[H]
     \centering
-    \begin{minipage}{0.5\textwidth}
+    \begin{minipage}{0.45\textwidth}
         \centering
         \includegraphics[width=\textwidth]{images2/fig_2_1_kernel2d.png}
         \caption{2D Mexican-hat kernel ($A_{exc}=A_{inh}=1.0$, $\sigma_{exc}=4.8$, $\sigma_{inh}=5.0$). The narrow $\sigma$ margin sets the spatial frequency of the emergent lattice.}
@@ -194,7 +188,7 @@ with $I^{rec}(\mathbf{x},t)=\sum_{p\in\{N,S,E,W\}}\iint W_p(\mathbf{x}-\mathbf{x
     \end{minipage}
 \end{figure}
 
-The 2D Mexican-hat kernel destabilizes the uniform background and selectively amplifies the preferred spatial frequency set by $\sigma_{exc}/\sigma_{inh}$, driving the network to its minimal-energy hexagonal configuration.
+Yes, a hexagonal grid pattern is clearly visible. The 2D Mexican-hat kernel destabilizes the uniform background and selectively amplifies the preferred spatial frequency set by $\sigma_{exc}/\sigma_{inh}$, driving the network to its minimal-energy hexagonal configuration.
 
 \subsection{Ex 2.3 --- Velocity integration in 2D}
 
@@ -204,7 +198,7 @@ The 2D Mexican-hat kernel destabilizes the uniform background and selectively am
     \caption{$r_{total}(x,y)$ at $t=300$, $450$, $600$ ms for horizontal ($v_x=2$), vertical ($v_y=2$), and diagonal ($v_x=v_y=2$) motion. The hexagonal pattern is \emph{structurally preserved}; only its spatial phase shifts, encoding the time-integrated position $\boldsymbol{\phi}(t)=\boldsymbol{\phi}(0)+\kappa\int_0^t\mathbf{v}\,dt'$.}
     \label{fig:velocity2d}
 \end{figure}
-
+The hexagonal pattern translates rigidly in the direction of the applied velocity, with speed proportional to $|\mathbf{v}|$, while its spacing and orientation remain unchanged. This confirms that the network performs 2D path integration: the velocity bias asymmetrically modulates the feedforward drives across the four populations, and the shifted kernels propagate this bias into a rigid lattice translation.
 \subsection{Ex 2.4 (Bonus) --- 2D velocity tracking under time-varying input}
 
 A time-varying velocity signal is generated by sampling a new random direction and speed $\in[1,2]$ every 100 ms, with a 10 ms linear ramp at each transition. The instantaneous 2D grid velocity is extracted by identifying the dominant spatial wavevector $\mathbf{k}^*$ of the hexagonal pattern via the 2D DFT, then differentiating the unwrapped phase of the Fourier coefficient at $\mathbf{k}^*$:
@@ -266,6 +260,8 @@ with $\gamma=0.08$, $R_{fade}=f_{ratio}\times M/2=5$ ($f_{ratio}=0.2$, $M=50$).
         \label{fig:envelope}
     \end{minipage}
 \end{figure}
+\textbf{Observation.} 
+The truncation of the continuous attractor sheet structurally removes the long-range inhibitory surround for boundary neurons. This asymmetric loss fundamentally disrupts the center-surround competition mandated by the Mexican-hat kernel. Consequently, peripheral neurons receive a net recurrent excitatory current that permanently drives their activity above threshold, saturating the network edges and suppressing the interior grid pattern.
 
 \subsection{Ex 3.3 \& 3.4 --- Weight and input attenuation}
 
@@ -353,18 +349,6 @@ Using the input-attenuation model (Ex 3.4, $M=50$), we apply the same time-varyi
     \item \textit{Model extensions.} Bridge theory and data with: (a) a theta-rhythm module ($\sim\!8$ Hz) for realistic velocity-signal gating; and (b) a hippocampal place-cell decoder integrating multiple grid modules for unambiguous position readout.
 \end{enumerate}
 
-%=============================================================================
-\section{Discussion: Limitations \& Extensions}
-%=============================================================================
-
-\textbf{8.1 Error Accumulation and Landmark Reset}\\
-While the continuous attractor hypothesis elegantly solves the computation of path integration, all dynamical systems built on physical substrates suffer from noise. Because the attractor manifold is flat (marginally stable), random fluctuations in spike timing or small structural heterogeneities in synaptic weights cause the phase of the grid to drift over time in the absence of velocity input. Mathematically, the variance of this drift grows linearly with time ($drift \propto t$). Therefore, a pure CAN path integrator cannot survive indefinitely in complete darkness. The biological brain solves this by relying on border cells and place cells (in the hippocampus) to provide visual and contextual landmark cues, which periodically "pin" or reset the phase of the MEC grid, correcting the accumulated integration error.
-
-\textbf{8.2 Modular Organization of Grid Spacing}\\
-Biological recordings demonstrate that grid cells are organized topographically along the dorso-ventral axis of the MEC into discrete modules. Cells recorded in the dorsal MEC exhibit a tight grid spacing ($\lambda \approx 30$ cm), while cells in the ventral MEC display a much larger spacing ($\lambda > 1.5$ m). Our implemented CAN model relies on a single set of $\sigma_{exc}$ and $\sigma_{inh}$ parameters, producing a single spatial frequency. To fully model the biological MEC, the architecture must be extended into multiple interacting, uncoupled neural sheets, each parameterized with scaling gradients of Mexican-hat connectivity footprints to replicate the multi-scale coordinate system necessary for robust 2D decoding.
-
-\textbf{8.3 Model Critique: Rate-Based vs. Spiking Dynamics}\\
-Our model relies on a highly simplified, deterministic, macroscopic rate-based continuum equation. However, biological neurons in the MEC exhibit highly variable, stochastic Poisson-like spiking and phenomena such as spike-frequency adaptation. A more biologically rigorous approach would employ microscopic Spiking Neural Networks (SNN) utilizing Generalized Linear Models (GLM) or Spike Response Models (SRM). While our deterministic field equation successfully isolates the collective low-dimensional manifold dynamics, it fundamentally smooths over the probabilistic spiking noise and adaptation currents that continuously perturb the attractor state and contribute to the intrinsic phase drift observed in real neural circuits.
 
 %=============================================================================
 \section{Conclusion}
@@ -373,21 +357,23 @@ Our model relies on a highly simplified, deterministic, macroscopic rate-based c
 We have successfully implemented and analyzed a hierarchical path-integration model, progressing from a 1D ring attractor to a comprehensive 2D continuous attractor network (CAN) that recapitulates the spontaneous emergence and velocity-driven translation of hexagonal firing fields observed in MEC grid cells. Key findings include:
 
 \begin{itemize}[itemsep=0pt, parsep=0pt, topsep=2pt, partopsep=0pt]
-    \item The 1D Mexican-hat connectivity profile drives spontaneous pattern formation. Its spatial phase is determined by initial noise via symmetry breaking, revealing the continuous manifold of equivalent fixed points that characterizes an attractor network.
-    \item A dual-population architecture structurally converts a scalar velocity signal into a proportional drift of the activity bump. The measured drift speed scales strictly \textbf{linearly} with the input velocity (Fig.~\ref{fig:linear_v}), confirming mathematically exact path integration.
-    \item Generalizing the architecture to 2D with four directionally shifted populations spontaneously generates a \textbf{hexagonal lattice}, representing the network's minimal-energy state. Asymmetric velocity modulation forces the entire lattice to translate rigidly, accurately encoding 2D trajectories through its spatial phase.
-    \item Aperiodic boundary conditions disrupt the center-surround equilibrium. Applying a radial envelope $e(\mathbf{x})$ via input attenuation successfully restores the lattice in the network interior and strictly preserves the translation invariance required for undistorted dynamic path integration.
+    \item The 1D Mexican-hat connectivity profile drives spontaneous pattern formation.
+    \item A dual-population architecture structurally converts a scalar velocity signal into a proportional drift of the activity bump.
+    \item Generalizing the architecture to 2D with four directionally shifted populations spontaneously generates a hexagonal lattice, representing the network's minimal-energy state.
+    \item Applying a radial envelope $e(\mathbf{x})$ via input attenuation successfully restores the lattice in the network interior and strictly preserves the translation invariance required for undistorted dynamic path integration.
 \end{itemize}
 
-These computational results confirm that the continuous attractor framework offers a highly robust and mechanistically coherent model of grid cell dynamics. The implementation is strictly consistent with the foundational model of Burak and Fiete \cite{burak2009} and satisfies the anatomical and dynamical constraints of the medial entorhinal cortex.
 
 %=============================================================================
 \section{Approach}
 %=============================================================================
+The team (Yann and Arthur) divided the simulation work into two parts. One implemented the 1D continuous attractor network for Exercises~0 and~1, while the other implemented the 2D extension and boundary-condition analysis for Exercises~2 and~3. After this first split, we systematically reviewed each other's code, reran all simulations together, and harmonized the notation, parameter choices, and plotting style across the notebook.
 
-The team (Arthur and Yann) divided the implementation responsibilities logically: one member led the development of the 1D continuous attractor network (Exercises 0--1), while the other generalized the architecture to the 2D grid cell model (Exercises 2--3). We conducted joint code reviews and exhaustive debugging sessions after each major milestone.
+We wrote the simulation code in Python, using only the equations from the project statement and standard scientific libraries. For Exercises~0 and~1, we first coded the 1D Mexican-hat kernel, then the Euler integration of the ring attractor, then the two shifted subpopulations used for velocity integration, and finally the velocity readout. In Exercise~1.4, we chose to estimate the bump velocity through the phase of the first spatial Fourier component, because the bump lives on a periodic ring and its position is therefore naturally described as an angle rather than by a simple peak index. For each figure, we proceeded incrementally: first verifying that the kernel shape matched expectations, then checking that the firing-rate heatmaps reproduced the expected bump or periodic structure, and finally validating that the measured bump velocity scaled linearly with the imposed velocity.
 
-We wrote all Python code autonomously from scratch, relying exclusively on the mathematical formulations provided in the course materials and standard scientific libraries (\texttt{numpy}, \texttt{scipy.ndimage}, \texttt{matplotlib}). Large Language Models (LLMs) were used strictly as programming assistants to resolve minor Python syntax errors and as copy-editors to polish English grammar and elevate the academic tone of the final report. Crucially, all theoretical derivations---including the velocity-driven shifting mechanism (Ex.~1.2), the aperiodic boundary dynamics analysis (Ex.~3.5), parameter choice justifications, and the design of the biological experiment---were produced entirely independently by the team. Every simulation result presented in this report can be exactly reproduced by executing the provided notebook \texttt{NX\_465\_Miniproject\_2\_2026\_Solution.ipynb} sequentially in a single kernel run.
+For Exercises~2 and~3, we followed the same logic: first generalizing the kernel to 2D, then implementing the four directional populations and testing the emergence of the hexagonal grid, then adding constant and time-varying velocity inputs, and finally comparing periodic versus aperiodic boundaries together with the two correction strategies. Here too, we made explicit methodological choices: in the 2D moving-grid analysis we reused Fourier phase tracking because a rigid translation of the lattice is most naturally captured through the phase of its dominant spatial modes, and in the aperiodic-boundary part we implemented both weight attenuation and input attenuation in order to compare a connectivity-based correction with a drive-based correction. We ultimately retained the interpretation that input attenuation is more appropriate for path-integration dynamics because it preserves the recurrent attractor structure better.
+
+We used a Large Language Model only as a support tool, not to generate the scientific content of the project. In practice, we used it to improve the English of the report, make parts of the code clearer and more readable, and occasionally fix minor syntax or plotting issues. Our prompts were therefore focused on code clarity, variable naming, and academic phrasing, rather than on asking for theoretical derivations or ready-made solutions. The modeling choices, debugging, interpretation of the figures, and final scientific conclusions were all done by the two of us.
 
 \newpage
 %=============================================================================
